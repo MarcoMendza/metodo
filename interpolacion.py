@@ -2,18 +2,72 @@ import numpy as np
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 
+CONTROLLER = 1
 
-def solicitar_datos():
+def solicitar_datos(CONTROLLER):
     # Solicita los puntos x e y al usuario
-    x_str = input("Ingresa los valores de x separados por comas: ")
-    y_str = input("Ingresa los valores de y separados por comas: ")
-    xi = float(input("Ingresa el punto de interpolación xi: "))
+    x = 0
+    y = 0
 
+    try:
+        x_str = input("Ingresa los valores de x separados por comas: ")
+        x = [float(num) for num in x_str.split(',')]
+        if( len(x) < 2 ):
+            print('Tienen que ser mas de 2 valores')
+            if (CONTROLLER < 3):
+                CONTROLLER = CONTROLLER + 1
+                return solicitar_datos(CONTROLLER)
+            else:
+                print('Cerrando el programa')
+                return exit()
+    except Exception:
+        print('Ingrese solo numeros separados por comas\nEjemplo -11, -7, 5, 8, 12')
+        if (CONTROLLER < 3):
+            CONTROLLER = CONTROLLER + 1
+            return solicitar_datos(CONTROLLER)
+        else:
+            print('Cerrando el programa')
+            return exit()
+    try:
+        y_str = input("Ingresa los valores de y separados por comas: ")
+        y = [float(num) for num in y_str.split(',')]
+        if (len(y) < 2):
+            print('Tienen que ser mas de 2 valores')
+            if (CONTROLLER < 3):
+                CONTROLLER = CONTROLLER + 1
+                return solicitar_datos(CONTROLLER)
+            else:
+                print('Cerrando el programa')
+                return exit()
+    except Exception:
+        print('Ingrese solo numeros separados por comas\nEjemplo -11, -7, 5, 8, 12')
+        if (CONTROLLER < 3):
+            CONTROLLER = CONTROLLER + 1
+            return solicitar_datos(CONTROLLER)
+        else:
+            print('Cerrando el programa')
+            return exit()
+    try:
+        xi = float(input("Ingresa el punto de interpolación xi: "))
+    except Exception:
+        print('Ingrese solo un numero\nEjemplo 11')
+        if (CONTROLLER < 3):
+            CONTROLLER = CONTROLLER + 1
+            return solicitar_datos(CONTROLLER)
+        else:
+            print('Cerrando el programa')
+            return exit()
     # Convierte las cadenas a listas de números
-    x = [float(num) for num in x_str.split(',')]
-    y = [float(num) for num in y_str.split(',')]
 
-    return x, y, xi;
+    if(len(x) != len(y)):
+        print("Ingrese los mismos valores de x & y")
+        if(CONTROLLER < 3):
+            CONTROLLER = CONTROLLER + 1
+            return solicitar_datos(CONTROLLER)
+        else:
+            print('Cerrando el programa')
+            return exit()
+    return x, y, xi
 
 
 def InterpolNewton(x, y, xi):
@@ -85,7 +139,7 @@ def InterpolNewton(x, y, xi):
 
     return (I, x, dd, b, xterm, pol, xterm_simbol, pol_simbol)
 
-x, y, xi = solicitar_datos()
+x, y, xi = solicitar_datos(CONTROLLER)
 
 # Llama la función de interpolación de Newton
 I, xn, dd, b, xterm, pol, xterm_simbol, pol_simbol = InterpolNewton(x, y, xi)
@@ -108,17 +162,19 @@ print(xterm)
 #GRAFICA DE INTERPOLACION
 xpol = np.linspace(min(x), max(x), 50)  #valores del eje x para graficar
 n = 4                                   #Grado del polinomio
-
-xterm = []                              #Terminos del polinomio numericos (x - x_0)(x - x_1)...(x - x_n-1)
-ypol = np.zeros(len(xpol))               #Polinomio de interpolacion numerico b0 + b1(x - x0) + b2(x - x0)(x - x1) + b3(x - x0)(x - x1)(x - x2)…
-for i in range(len(xpol)):
-  for j in range(n+1):
-    if j == 0:
-      xterm = 1
-      ypol[i] = b[0]
-    else:
-      xterm = xterm*(xpol[i] - x[j-1])
-      ypol[i] = ypol[i] + b[j]*xterm
+try:
+    xterm = []                              #Terminos del polinomio numericos (x - x_0)(x - x_1)...(x - x_n-1)
+    ypol = np.zeros(len(xpol))               #Polinomio de interpolacion numerico b0 + b1(x - x0) + b2(x - x0)(x - x1) + b3(x - x0)(x - x1)(x - x2)…
+    for i in range(len(xpol)):
+      for j in range(n+1):
+        if j == 0:
+          xterm = 1
+          ypol[i] = b[0]
+        else:
+          xterm = xterm*(xpol[i] - x[j-1])
+          ypol[i] = ypol[i] + b[j]*xterm
+except Exception:
+    print()
 
 #ypol=-7.0 + 2.251*(xpol - -11) + -0.166666666666666661*(xpol - -11)*(xpol - -7) + 0.0184210526315789461*(xpol - -11)*(xpol - -7)*(xpol - 5) + -0.0027187534052522611*(xpol - -11)*(xpol - -7)*(xpol - 5)*(xpol - 8)
 
